@@ -13,6 +13,7 @@
 
     <div class="flex-grow-1 custom-padding p-4">
         <h1>PAGOS</h1>
+      
         <div class="d-flex justify-content-between mb-3">
     <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#cargarPagoModal">Cargar Pago</button>
     <input type="text" id="searchInput" class="form-control w-50" placeholder="Buscar por Legajo o DNI">
@@ -117,7 +118,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-
+document.addEventListener('DOMContentLoaded', function() {
+        contarPagos();
+    });
     document.getElementById('cargarPagoForm').addEventListener('submit', function (e) {
     e.preventDefault();
 
@@ -251,6 +254,24 @@ function descargarPDF() {
     } else {
         alert('No se puede generar el PDF. Faltan datos del alumno o curso.');
     }
+}function contarPagos() {
+    fetch('/contar-pagos', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al contar los pagos');
+        }
+        return response.json();
+    })
+    
+    .catch(error => {
+        alert('Error: ' + error.message); // Mostrar mensaje de error
+    });
 }
 </script>
 

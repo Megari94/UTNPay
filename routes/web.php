@@ -25,7 +25,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
 Route::get('/alumnos', [AlumnoController::class, 'index'])->name('alumnos.index');
 Route::post('/alumnos', [AlumnoController::class, 'store'])->name('alumnos.store');
 Route::post('/alumnos/import', [AlumnoController::class, 'import'])->name('alumnos.import');
@@ -42,5 +41,5 @@ Route::post('/alumnoxcurso', [AlumnoXCursoController::class, 'store'])->name('al
 
 Route::get('/alumnos/{id}/cursos', [AlumnoXCursoController::class, 'getCursos'])->name('alumnos.cursos');
 
-
+Route::post('/contar-pagos', [PagoController::class, 'contarPagosPorAlumnoYCurso'])->name('contar.pagos');
 Route::post('/enviar-correo', [CorreoController::class, 'enviarATodos']);

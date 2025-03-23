@@ -30,15 +30,17 @@
     <table>
         <thead>
             <tr>
+                <th>Mes de Pago</th>
                 <th>Fecha de Pago</th>
                 <th>Monto</th>
             </tr>
         </thead>
         <tbody>
-            @foreach ($pagos as $pago)
+            @foreach ($historial as $item)
             <tr>
-                <td>{{ $pago->fecha_pago }}</td>
-                <td>{{ $pago->monto }}</td>
+                <td>{{ $item['mes'] }}</td>
+                <td>{{ $item['fecha_pago'] }}</td>
+                <td>{{ $item['monto'] }}</td>
             </tr>
             @endforeach
         </tbody>

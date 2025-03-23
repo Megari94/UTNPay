@@ -29,6 +29,7 @@ Route::get('/', function () {
 Route::get('/alumnos', [AlumnoController::class, 'index'])->name('alumnos.index');
 Route::post('/alumnos', [AlumnoController::class, 'store'])->name('alumnos.store');
 Route::post('/alumnos/import', [AlumnoController::class, 'import'])->name('alumnos.import');
+
 Route::get('/alumnos/{alumnoId}/cursos/{cursoId}/historial-pagos/pdf', [HistorialPagosController::class, 'generarPDF']);
 Route::get('/alumnos/{alumnoId}/cursos/{cursoId}/historial-pagos', [HistorialPagosController::class, 'getHistorialPorCurso']);
 Route::get('/pagos', [PagoController::class, 'index'])->name('pagos.index');

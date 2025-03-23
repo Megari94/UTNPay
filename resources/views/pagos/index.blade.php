@@ -95,6 +95,7 @@
                 <table class="table table-striped mt-4">
                     <thead>
                         <tr>
+                            <th>Mes de Pago</th>
                             <th>Fecha de Pago</th>
                             <th>Monto</th>
                         </tr>
@@ -144,8 +145,7 @@
     .catch(error => {
         alert('Error: ' + error.message); // Mostrar mensaje de error
     });
-});
- function verCursos(alumnoId) {
+});function verCursos(alumnoId) {
     // Hacer una solicitud AJAX para obtener los cursos del alumno
     $.get(`/alumnos/${alumnoId}/cursos`, function(cursos) {
         // Limpiar el cuerpo de la tabla
@@ -175,59 +175,55 @@
             }
 
             $('#cursosTableBody').append(`
-    <tr>
-        <td>${curso.nombre}</td>
-        <td>
-            <button class="btn btn-sm ${estadoClase}" onclick="verHistorialPago(${alumnoId}, ${curso.id})">
-                ${estadoTexto}
-            </button>
-        </td>
-    </tr>
-`);
+                <tr>
+                    <td>${curso.nombre}</td>
+                    <td>
+                        <button class="btn btn-sm ${estadoClase}" onclick="verHistorialPago(${alumnoId}, ${curso.id})">
+                            ${estadoTexto}
+                        </button>
+                    </td>
+                </tr>
+            `);
         });
 
-        // Mostrar el modal
+        // Mostrar el modal de cursos
         $('#cursosModal').modal('show');
     }).fail(function() {
         alert('Error al obtener los cursos del alumno.');
     });
- };
- function verHistorialPago(alumnoId, cursoId) {
+}
+function verHistorialPago(alumnoId, cursoId) {
     $.get(`/alumnos/${alumnoId}/cursos/${cursoId}/historial-pagos`, function(data) {
         // Limpiar el contenido previo
         $('#historialPagoHeader').empty();
         $('#historialPagoTableBody').empty();
 
-        $('#historialPagoHeader').html(`
-    <h5>Alumno: ${data.alumno.nombre} ${data.alumno.apellido}</h5>
-    <p>DNI: ${data.alumno.dni} | Legajo: ${data.alumno.id}</p>
-    <h6>Curso: ${data.curso.nombre}</h6>
-`).data('alumno-id', alumnoId).data('curso-id', cursoId);
+        // Configurar los datos del alumno y curso en el encabezado
+        $('#historialPagoHeader')
+            .html(`
+                <h5>Alumno: ${data.alumno.nombre} ${data.alumno.apellido}</h5>
+                <p>DNI: ${data.alumno.dni} | Legajo: ${data.alumno.id}</p>
+                <h6>Curso: ${data.curso.nombre}</h6>
+            `)
+            .data('alumno-id', alumnoId) // Configurar el ID del alumno
+            .data('curso-id', cursoId); // Configurar el ID del curso
 
         // Agregar los pagos a la tabla
-        data.pagos.forEach(function(pago) {
+        data.historial.forEach(function(item) {
             $('#historialPagoTableBody').append(`
                 <tr>
-                    <td>${pago.fecha_pago}</td>
-                    <td>${pago.monto}</td>
+                    <td>${item.mes}</td>
+                    <td>${item.fecha_pago}</td>
+                    <td>${item.monto}</td>
                 </tr>
             `);
         });
 
-        // Mostrar el modal
+        // Mostrar el modal de historial de pagos
         $('#historialPagoModal').modal('show');
     }).fail(function() {
         alert('Error al obtener el historial de pagos.');
     });
-}function descargarPDF() {
-    const alumnoId = $('#historialPagoHeader').data('alumno-id');
-    const cursoId = $('#historialPagoHeader').data('curso-id');
-
-    if (alumnoId && cursoId) {
-        window.open(`/alumnos/${alumnoId}/cursos/${cursoId}/historial-pagos/pdf`, '_blank');
-    } else {
-        alert('No se puede generar el PDF. Faltan datos del alumno o curso.');
-    }
 }
  document.getElementById('searchInput').addEventListener('input', function() {
     const filter = this.value.toLowerCase().trim(); // Convertir a minúsculas y eliminar espacios
@@ -245,6 +241,17 @@
         }
     });
 });
+function descargarPDF() {
+    const alumnoId = $('#historialPagoHeader').data('alumno-id');
+    const cursoId = $('#historialPagoHeader').data('curso-id');
+
+    if (alumnoId && cursoId) {
+        // Abrir el PDF en una nueva pestaña o descargarlo
+        window.open(`/alumnos/${alumnoId}/cursos/${cursoId}/historial-pagos/pdf`, '_blank');
+    } else {
+        alert('No se puede generar el PDF. Faltan datos del alumno o curso.');
+    }
+}
 </script>
 
 

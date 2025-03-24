@@ -8,6 +8,7 @@ use App\Http\Controllers\HistorialPagosController;
 use App\Http\Controllers\CursoController; 
 use App\Http\Controllers\CorreoController;
 use App\Http\Controllers\AlumnoXCursoController;
+use App\Http\Controllers\CertificadoController;
 
 
 /*
@@ -43,3 +44,7 @@ Route::get('/alumnos/{id}/cursos', [AlumnoXCursoController::class, 'getCursos'])
 
 Route::post('/contar-pagos', [PagoController::class, 'contarPagosPorAlumnoYCurso'])->name('contar.pagos');
 Route::post('/enviar-correo', [CorreoController::class, 'enviarATodos']);
+Route::get('/certificado/{nombre}/{curso}/{modalidad}/{fecha}/{profesor}/{coordinadora}', [CertificadoController::class, 'generarCertificado']);
+Route::get('/certificados', [CertificadoController::class, 'index'])->name('certificados.index');
+Route::post('/certificados/visualizar', [CertificadoController::class, 'visualizar'])->name('certificados.visualizar');
+Route::post('/certificados/descargar', [CertificadoController::class, 'descargar'])->name('certificados.descargar');

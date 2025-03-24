@@ -17,5 +17,8 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('alertas.index') }}"><i class="bi bi-bell"></i> Alertas</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('certificados.index') }}"><i class="bi bi-book"></i>Certificados</a>
+<               </li>
             </ul>
         </div>

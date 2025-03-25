@@ -6,63 +6,59 @@
     <title>Certificado</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: Arial, sans-serif;            
             text-align: center;
-            position: relative;
-            width: 100%;
-            height: 100vh;
+            position: relative;         
+            margin: -45;
+            padding: -45;
+            border: -45;
         }
 
         /* Imagen de fondo cubriendo toda la hoja */
         .fondo {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed;            
+            width: 115%;
+            height:115%;
             background: url('{{ public_path('images/certificado_base.jpg') }}') no-repeat center center;
-            background-size: 100% 100%;
-            z-index: -1;
+            background-size: cover;
         }
 
         /* Contenedor del contenido centrado */
         .contenido {
-            position: absolute;
+            position: relative;
             top: 40%;
-            left: 50%;
+            left: 65%;
             transform: translate(-50%, -50%);
-            width: 70%;
-            font-size: 20px;
+            width: 60%;
+            font-size: 25px;
             text-align: center;
         }
 
         /* Sección de firmas */
-        .firmas {
-            position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .firma p {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Clase para separar el Profesor de la Coordinadora */
+        .profesor-coordinadora {
+            margin-right: 200px; /* Ajusta este valor para aumentar la distancia entre ellos */
         }
 
         .firma {
+            position: relative;
+            margin-top: 45%;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 80%;
+            margin-left: 35%;
+            margin-right: auto;
             text-align: center;
             font-size: 16px;
-            width: 40%;
+            width: 60%;
         }
 
-        .linea-firma {
-            margin-top: 50px;
-            border-top: 2px solid #000;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
     </style>
 </head>
 <body>
@@ -72,18 +68,28 @@
         <p>Se certifica que <strong>{{ $nombre }}</strong> ha completado el curso <strong>{{ $curso }}</strong> en la modalidad <strong>{{ $modalidad }}</strong>, 
         finalizado en la fecha <strong>{{ $fecha }}</strong>.</p>
     </div>
-
-    <div class="firmas">
-        <div class="firma">
-            <div class="linea-firma"></div>
-            <p><strong>{{ $profesor }}</strong></p>
-            <p>Profesor</p>
-        </div>
-        <div class="firma">
-            <div class="linea-firma"></div>
-            <p><strong>{{ $coordinadora }}</strong></p>
-            <p>Coordinadora</p>
-        </div>
+    
+    <div class="firma">
+        <!-- Aquí agregamos el espacio entre las firmas -->
+        <p><strong>{{ $profesor }}</strong> 
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <strong>{{ $coordinadora }}</strong></p>
+        <p>Profesor &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Coordinador </p>
     </div>
 </body>
 </html>

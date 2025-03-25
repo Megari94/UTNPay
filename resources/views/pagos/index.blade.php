@@ -45,7 +45,8 @@
             </tbody>
         </table>
     </div>
-</div>
+</div><!-- Modal para Cargar Pago -->
+<!-- Modal para Cargar Pago -->
 <!-- Modal para Cargar Pago -->
 <div class="modal fade" id="cargarPagoModal" tabindex="-1" aria-labelledby="cargarPagoModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -55,33 +56,34 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="cargarPagoForm" action="/historial-pagos" method="POST">
-    <div class="modal-body">
-        <div class="mb-3">
-            <label for="alumnoId" class="form-label">ID del Alumno</label>
-            <input type="number" class="form-control" id="alumnoId" name="alumno_id" required>
-        </div>
-        <div class="mb-3">
-            <label for="cursoId" class="form-label">ID del Curso</label>
-            <input type="number" class="form-control" id="cursoId" name="curso_id" required>
-        </div>
-        <div class="mb-3">
-            <label for="fechaPago" class="form-label">Fecha del Pago</label>
-            <input type="date" class="form-control" id="fechaPago" name="fecha_pago" required>
-        </div>
-        <div class="mb-3">
-            <label for="monto" class="form-label">Monto</label>
-            <input type="number" step="0.01" class="form-control" id="monto" name="monto" required>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="dniAlumno" class="form-label">DNI del Alumno</label>
+                        <input type="text" class="form-control" id="dniAlumno" name="dni_alumno" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="nombreCurso" class="form-label">Nombre del Curso</label>
+                        <input type="text" class="form-control" id="nombreCurso" name="nombre_curso" required>
+                    </div>
+                    <input type="hidden" id="alumnoId" name="alumno_id">
+                    <input type="hidden" id="cursoId" name="curso_id">
+                    <div class="mb-3">
+                        <label for="fechaPago" class="form-label">Fecha del Pago</label>
+                        <input type="date" class="form-control" id="fechaPago" name="fecha_pago" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="monto" class="form-label">Monto</label>
+                        <input type="number" step="0.01" class="form-control" id="monto" name="monto" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Pago</button>
+                </div>
+            </form>
         </div>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-primary">Guardar Pago</button>
-    </div>
-</form>
-        </div>
-    </div>
-</div>
-<!-- Modal para Historial de Pagos -->
+</div><!-- Modal para Historial de Pagos -->
 <div class="modal fade" id="historialPagoModal" tabindex="-1" aria-labelledby="historialPagoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -164,9 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 case "al dia":
                     estadoClase = "btn-success";
                     break;
-                case "proximo a vencer":
-                    estadoClase = "btn-warning";
-                    break;
+            
                 case "vencido":
                     estadoClase = "btn-outline-danger";
                     break;
@@ -272,7 +272,37 @@ function descargarPDF() {
     .catch(error => {
         alert('Error: ' + error.message); // Mostrar mensaje de error
     });
-}
+}document.getElementById('dniAlumno').addEventListener('input', function() {
+    const dni = this.value.trim();
+    if (dni.length > 0) {
+        fetch(`/buscar-alumno-por-dni?dni=${dni}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.alumno) {
+                    document.getElementById('alumnoId').value = data.alumno.id;
+                }
+            })
+            .catch(error => {
+                console.error('Error al buscar el alumno:', error);
+            });
+    }
+});
+
+document.getElementById('nombreCurso').addEventListener('input', function() {
+    const nombreCurso = this.value.trim();
+    if (nombreCurso.length > 0) {
+        fetch(`/buscar-curso-por-nombre?nombre=${nombreCurso}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.curso) {
+                    document.getElementById('cursoId').value = data.curso.id;
+                }
+            })
+            .catch(error => {
+                console.error('Error al buscar el curso:', error);
+            });
+    }
+});
 </script>
 
 

@@ -48,3 +48,6 @@ Route::get('/certificado/{nombre}/{curso}/{modalidad}/{fecha}/{profesor}/{coordi
 Route::get('/certificados', [CertificadoController::class, 'index'])->name('certificados.index');
 Route::post('/certificados/visualizar', [CertificadoController::class, 'visualizar'])->name('certificados.visualizar');
 Route::post('/certificados/descargar', [CertificadoController::class, 'descargar'])->name('certificados.descargar');
+
+Route::get('/buscar-alumno-por-dni', [PagoController::class, 'buscarAlumnoPorDni']);
+Route::get('/buscar-curso-por-nombre', [PagoController::class, 'buscarCursoPorNombre']);

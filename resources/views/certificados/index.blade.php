@@ -50,21 +50,21 @@
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-eye"></i> Visualizar PDF</button>
-                </form>
-                <form action="{{ route('certificados.descargar') }}" method="POST" class="d-inline">
-                    @csrf
-                    <input type="hidden" name="nombre" id="hidden-nombre">
-                    <input type="hidden" name="curso" id="hidden-curso">
-                    <input type="hidden" name="modalidad" id="hidden-modalidad">
-                    <input type="hidden" name="fecha" id="hidden-fecha">
-                    <input type="hidden" name="profesor" id="hidden-profesor">
-                    <input type="hidden" name="coordinadora" id="hidden-coordinadora">
-                    <button type="submit" class="btn btn-success"><i class="bi bi-download"></i> Descargar PDF</button>
-                </form>
                 </div>
             </form>
-
-            
+            <form action="{{ route('certificados.descargar') }}" method="POST" class="d-inline">
+                @csrf
+                <input type="hidden" name="nombre" id="hidden-nombre">
+                <input type="hidden" name="curso" id="hidden-curso">
+                <input type="hidden" name="modalidad" id="hidden-modalidad">
+                <input type="hidden" name="fecha" id="hidden-fecha">
+                <input type="hidden" name="profesor" id="hidden-profesor">
+                <input type="hidden" name="coordinadora" id="hidden-coordinadora">
+                <button type="submit" class="btn btn-success"><i class="bi bi-download"></i> Descargar PDF</button>
+            </form>
+            <div class="mt-3">
+                <a href="{{ route('completaron.curso') }}" class="btn btn-info"><i class="bi bi-list-check"></i> Ver Alumnos que Completaron el Curso</a>
+            </div>
         </div>
     </div>
 

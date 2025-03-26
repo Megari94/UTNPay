@@ -51,3 +51,5 @@ Route::post('/certificados/descargar', [CertificadoController::class, 'descargar
 
 Route::get('/buscar-alumno-por-dni', [PagoController::class, 'buscarAlumnoPorDni']);
 Route::get('/buscar-curso-por-nombre', [PagoController::class, 'buscarCursoPorNombre']);
+
+Route::get('/alumnos-completaron-curso', [CursoController::class, 'alumnosCompletaronCurso'])->name('completaron.curso');

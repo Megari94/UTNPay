@@ -16,6 +16,6 @@ class Curso extends Model
     public function alumnos()
     {
         return $this->belongsToMany(Alumno::class, 'alumnoxcurso', 'curso_id', 'alumno_id')
-                    ->withPivot('estado'); // Incluir el campo 'estado' de la tabla intermedia
+                    ->withPivot('estado', 'pagos_realizados'); // Incluir los campos 'estado' y 'pagos_realizados' de la tabla intermedia
     }
 }

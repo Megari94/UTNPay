@@ -23,10 +23,9 @@ class Alumno extends Model
 
     public function cursos()
     {
-        return $this->belongsToMany(Curso::class, 'alumnoxcurso')
-                    ->withPivot('estado', 'pagos_realizados', 'activo');
+        return $this->belongsToMany(Curso::class, 'alumnoxcurso', 'alumno_id', 'curso_id')
+                    ->withPivot('estado', 'pagos_realizados'); // Incluir los campos 'estado' y 'pagos_realizados' de la tabla intermedia
     }
-
     public function pagos()
     {
         return $this->hasMany(HistorialPago::class);

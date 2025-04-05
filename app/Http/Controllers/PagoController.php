@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Models\Curso;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 class PagoController extends Controller
 {
     public function index()
@@ -20,7 +21,61 @@ class PagoController extends Controller
         $cursos = $alumno->cursos()->withPivot('estado')->get();
         return response()->json($cursos);
     }
+    public function obtenerDatosAlumnos()
+{
+    $datos = DB::table('alumnoxcurso')
+        ->join('cursos', 'alumnoxcurso.curso_id', '=', 'cursos.id')
+        ->join('alumnos', 'alumnoxcurso.alumno_id', '=', 'alumnos.id')
+        ->select(
+            'alumnoxcurso.id as alumnoxcurso_id',
+            'alumnos.nombre as alumno_nombre',
+            'alumnos.apellido as alumno_apellido',
+            'cursos.nombre as curso_nombre',
+            'cursos.mes_inicio',
+            'cursos.cant_meses',
+            'alumnoxcurso.pagos_realizados',
+            'alumnoxcurso.estado'
+        )
+        ->get();
 
+    return response()->json($datos);
+}public function actualizarEstadoAlumnos()
+{
+    $mesActual = Carbon::now()->month;
+
+    // Obtener los registros de alumnoxcurso
+    $alumnosCursos = DB::table('alumnoxcurso')
+        ->join('cursos', 'alumnoxcurso.curso_id', '=', 'cursos.id')
+        ->select(
+            'alumnoxcurso.id as alumnoxcurso_id',
+            'alumnoxcurso.pagos_realizados',
+            'cursos.mes_inicio',
+            'cursos.cant_meses'
+        )
+        ->get();
+
+    foreach ($alumnosCursos as $alumnoCurso) {
+        // Calcular la cantidad de meses que deberían haberse pagado
+        $mesesEsperados = $mesActual - $alumnoCurso->mes_inicio + 1;
+
+        // Verificar si el alumno cumple las condiciones
+        if ($mesesEsperados > 0 && $mesesEsperados <= $alumnoCurso->cant_meses) {
+            if ($alumnoCurso->pagos_realizados >= $mesesEsperados) {
+                // Actualizar el estado a "al día"
+                DB::table('alumnoxcurso')
+                    ->where('id', $alumnoCurso->alumnoxcurso_id)
+                    ->update(['estado' => 'al dia']);
+            }
+        } else {
+            // Si no cumple las condiciones, actualizar a "vencido"
+            DB::table('alumnoxcurso')
+                ->where('id', $alumnoCurso->alumnoxcurso_id)
+                ->update(['estado' => 'vencido']);
+        }
+    }
+
+    return response()->json(['message' => 'Estados actualizados correctamente.']);
+}
     public function contarPagosPorAlumnoYCurso()
     {
         $currentMonth = now()->month;

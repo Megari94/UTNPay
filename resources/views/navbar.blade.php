@@ -19,6 +19,6 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ route('certificados.index') }}"><i class="bi bi-book"></i>Certificados</a>
-<               </li>
+               </li>
             </ul>
         </div>

@@ -53,4 +53,6 @@ class AlumnoXCursoController extends Controller
         // Retornar la vista con los datos
         return view('alumnoxcurso.index', compact('alumnosPorCurso'));
     }
+
+    
 }

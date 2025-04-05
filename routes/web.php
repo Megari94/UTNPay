@@ -25,7 +25,11 @@ use App\Http\Controllers\CertificadoController;
 Route::get('/', function () {
     return view('welcome');
 });
+// Ruta GET para obtener los datos
+Route::get('/obtener-datos-alumnos', [PagoController::class, 'obtenerDatosAlumnos']);
 
+// Ruta POST para actualizar el estado
+Route::post('/actualizar-estado-alumnos', [PagoController::class, 'actualizarEstadoAlumnos']);
 Route::get('/alumnos', [AlumnoController::class, 'index'])->name('alumnos.index');
 Route::post('/alumnos', [AlumnoController::class, 'store'])->name('alumnos.store');
 Route::post('/alumnos/import', [AlumnoController::class, 'import'])->name('alumnos.import');

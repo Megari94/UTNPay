@@ -88,7 +88,6 @@ class CertificadoController extends Controller
         // Descargar el PDF
         return $pdf->download('certificado.pdf');
     }
-
     public function obtenerAlumnos(Request $request)
     {
         $cursoId = $request->curso_id;
@@ -98,11 +97,12 @@ class CertificadoController extends Controller
             return response()->json(['error' => 'Curso ID no recibido'], 400);
         }
     
-        // Filtrar alumnos que tienen el estado "al día" y están activos
+        // Filtrar alumnos que tienen el estado "al día", están activos y cuyos pagos_realizados coinciden con cant_meses
         $alumnos = Alumno::whereHas('cursos', function ($query) use ($cursoId) {
             $query->where('curso_id', $cursoId)
                   ->where('estado', 'al día') // Verifica que el estado sea "al día"
-                  ->where('activo', true); // Verifica que el alumno esté activo en el curso
+                  ->where('activo', true) // Verifica que el alumno esté activo en el curso
+                  ->whereColumn('alumnoxcurso.pagos_realizados', '=', 'cursos.cant_meses'); // Verifica que pagos_realizados sea igual a cant_meses
         })->get();
     
         // Debug: Verifica si se encontraron alumnos

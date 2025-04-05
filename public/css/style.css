@@ -9,6 +9,10 @@ body {
     overflow: hidden;
     background-color: #e8e0f2;
     color: #2b3035; /* Un gris oscuro elegante */
+    overflow-y: auto; /* Habilita el scroll vertical */
+    overflow-x: hidden; /* Evita el scroll horizontal */
+    max-height: 100vh; /* Limita la altura al tamaño de la ventana */
+    
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -23,9 +27,11 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar {
     background-color: #c169ff;
     min-width: 220px;
-    height: 100vh;
+    height: auto;
+    min-height: 100vh;
     padding: 20px;
     transition: all 0.3s ease-in-out;
+    
 }
 .sidebar .nav-link {
     color: white;

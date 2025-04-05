@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>UTNPay - Certificados</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -45,30 +46,112 @@
                     <input type="text" class="form-control" id="profesor" name="profesor" placeholder="Ej: Blas Pascal" required>
                 </div>
                 <div class="col-md-4">
-                    <label for="coordinadora" class="form-label">Coordinadora</label>
+                    <label for="coordinadora" class="form-label">Coordinador</label>
                     <input type="text" class="form-control" id="coordinadora" name="coordinadora" placeholder="Ej: María Antonieta" required>
                 </div>
                 <div class="col-12">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-eye"></i> Visualizar PDF</button>
                 </div>
             </form>
-            <form action="{{ route('certificados.descargar') }}" method="POST" class="d-inline">
-                @csrf
-                <input type="hidden" name="nombre" id="hidden-nombre">
-                <input type="hidden" name="curso" id="hidden-curso">
-                <input type="hidden" name="modalidad" id="hidden-modalidad">
-                <input type="hidden" name="fecha" id="hidden-fecha">
-                <input type="hidden" name="profesor" id="hidden-profesor">
-                <input type="hidden" name="coordinadora" id="hidden-coordinadora">
-                <button type="submit" class="btn btn-success"><i class="bi bi-download"></i> Descargar PDF</button>
-            </form>
-            <div class="mt-3">
-                <a href="{{ route('completaron.curso') }}" class="btn btn-info"><i class="bi bi-list-check"></i> Ver Alumnos que Completaron el Curso</a>
+
+
+            <div class="col-md-4">
+                <label for="curso" class="form-label">Curso</label>
+                <select class="form-select" id="curso" name="curso" required>
+                <option value="" selected disabled>Seleccione un curso</option>
+                @foreach ($cursos as $curso)
+                <option value="{{ $curso->id }}">{{ $curso->nombre }}</option>
+                @endforeach
+                </select>
+            </div>
+            <div class="mt-4">
+                <h2>Alumnos en condiciones de recibir certificados</h2>
+                <table class="table table-striped mt-4">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>DNI</th>
+                            <th>Correo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="alumnosTableBody">
+                    <!-- Los alumnos se cargarán aquí dinámicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-4">
+                <button id="enviarCorreos" class="btn btn-primary" disabled>Enviar Correos</button>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+document.getElementById('curso').addEventListener('change', function () {
+    const cursoId = this.value;
+    console.log('Selected curso_id:', cursoId); // Debug: Check curso_id
+
+    fetch('{{ route("certificados.alumnos") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: JSON.stringify({ curso_id: cursoId }),
+    })
+    .then(response => response.json())
+    .then(alumnos => {
+        console.log('Response from server:', alumnos); // Debug: Check server response
+
+        const tbody = document.getElementById('alumnosTableBody');
+        tbody.innerHTML = ''; // Clear the table
+
+        if (alumnos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5">No hay alumnos en condiciones de recibir certificados</td></tr>';
+        } else {
+            alumnos.forEach((alumno, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${alumno.nombre}</td>
+                        <td>${alumno.apellido}</td>
+                        <td>${alumno.dni}</td>
+                        <td>${alumno.correo}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        document.getElementById('enviarCorreos').disabled = alumnos.length === 0;
+    });
+});
+
+    document.getElementById('enviarCorreos').addEventListener('click', function () {
+        const cursoId = document.getElementById('curso').value;
+        const fecha = document.getElementById('fecha').value;
+        const coordinador = document.getElementById('coordinadora').value;
+
+        // Obtener los IDs de los alumnos
+        const alumnos = Array.from(document.querySelectorAll('#alumnosTableBody tr')).map(row => row.cells[0].textContent);
+
+        // Solicitud AJAX para enviar los certificados
+        fetch('/certificados/enviar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            },
+            body: JSON.stringify({ curso_id: cursoId, fecha, coordinador, alumnos }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        });
+    });
+</script>
 </body>
 </html>

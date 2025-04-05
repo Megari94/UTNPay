@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use PDF;
 use App\Models\Curso;
+use App\Models\Alumno;
 
 class CertificadoController extends Controller
 {
@@ -56,18 +57,27 @@ class CertificadoController extends Controller
         // Descargar el PDF
         return $pdf->download('certificado.pdf');
     }
+
     public function obtenerAlumnos(Request $request)
     {
         $cursoId = $request->curso_id;
-        dd($cursoId); // Debug: Check if curso_id is received
     
+        // Debug: Verifica si el curso_id se recibe correctamente
+        if (!$cursoId) {
+            return response()->json(['error' => 'Curso ID no recibido'], 400);
+        }
+    
+        // Filtrar alumnos que tienen el estado "al día" y están activos
         $alumnos = Alumno::whereHas('cursos', function ($query) use ($cursoId) {
             $query->where('curso_id', $cursoId)
-                  ->where('estado', 'al día') // Ensure this matches your data
-                  ->where('activo', true);
+                  ->where('estado', 'al día') // Verifica que el estado sea "al día"
+                  ->where('activo', true); // Verifica que el alumno esté activo en el curso
         })->get();
     
-        dd($alumnos); // Debug: Check if any alumnos are retrieved
+        // Debug: Verifica si se encontraron alumnos
+        if ($alumnos->isEmpty()) {
+            return response()->json(['message' => 'No hay alumnos en condiciones'], 200);
+        }
     
         return response()->json($alumnos);
     }

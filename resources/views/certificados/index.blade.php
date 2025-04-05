@@ -54,15 +54,18 @@
                 </div>
             </form>
 
-
             <div class="col-md-4">
-                <label for="curso" class="form-label">Curso</label>
-                <select class="form-select" id="curso" name="curso" required>
-                <option value="" selected disabled>Seleccione un curso</option>
-                @foreach ($cursos as $curso)
-                <option value="{{ $curso->id }}">{{ $curso->nombre }}</option>
-                @endforeach
+                <label for="curso_id" class="form-label">Curso</label>
+                <select class="form-select" id="curso_id" name="curso_id" required>
+                    <option value="" selected disabled>Seleccione un curso</option>
+                    @foreach ($cursos as $curso)
+                        <option value="{{ $curso->id }}">{{ $curso->nombre }}</option>
+                    @endforeach
                 </select>
+            </div>
+            <div class="mt-4">
+                <button id="buscarAlumnos" class="btn btn-success">Buscar Alumnos</button>
+                <button id="limpiarLista" class="btn btn-secondary">Limpiar Lista</button>
             </div>
             <div class="mt-4">
                 <h2>Alumnos en condiciones de recibir certificados</h2>
@@ -77,7 +80,7 @@
                         </tr>
                     </thead>
                     <tbody id="alumnosTableBody">
-                    <!-- Los alumnos se cargarán aquí dinámicamente -->
+                        <!-- Los alumnos se cargarán aquí dinámicamente -->
                     </tbody>
                 </table>
             </div>
@@ -90,68 +93,88 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-document.getElementById('curso').addEventListener('change', function () {
-    const cursoId = this.value;
-    console.log('Selected curso_id:', cursoId); // Debug: Check curso_id
+        // Botón para buscar alumnos
+        document.getElementById('buscarAlumnos').addEventListener('click', function () {
+            const cursoId = document.getElementById('curso_id').value;
+            console.log('Selected curso_id:', cursoId); // Debug: Verifica el curso_id seleccionado
 
-    fetch('{{ route("certificados.alumnos") }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-        },
-        body: JSON.stringify({ curso_id: cursoId }),
-    })
-    .then(response => response.json())
-    .then(alumnos => {
-        console.log('Response from server:', alumnos); // Debug: Check server response
+            if (!cursoId) {
+                alert('Por favor, seleccione un curso.');
+                return;
+            }
 
-        const tbody = document.getElementById('alumnosTableBody');
-        tbody.innerHTML = ''; // Clear the table
+            fetch('{{ route("certificados.alumnos") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: JSON.stringify({ curso_id: cursoId }),
+            })
+            .then(response => {
+                console.log('Response status:', response.status); // Debug: Verifica el estado de la respuesta
+                return response.json();
+            })
+            .then(alumnos => {
+                console.log('Response from server:', alumnos); // Debug: Verifica la respuesta del servidor
 
-        if (alumnos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5">No hay alumnos en condiciones de recibir certificados</td></tr>';
-        } else {
-            alumnos.forEach((alumno, index) => {
-                const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${alumno.nombre}</td>
-                        <td>${alumno.apellido}</td>
-                        <td>${alumno.dni}</td>
-                        <td>${alumno.correo}</td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
+                const tbody = document.getElementById('alumnosTableBody');
+                tbody.innerHTML = ''; // Limpia la tabla
+
+                if (alumnos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">No hay alumnos en condiciones de recibir certificados</td></tr>';
+                } else {
+                    alumnos.forEach((alumno, index) => {
+                        const row = `
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${alumno.nombre}</td>
+                                <td>${alumno.apellido}</td>
+                                <td>${alumno.dni}</td>
+                                <td>${alumno.correo}</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                }
+
+                document.getElementById('enviarCorreos').disabled = alumnos.length === 0;
+            })
+            .catch(error => {
+                console.error('Error fetching alumnos:', error); // Debug: Muestra errores en la consola
             });
-        }
-
-        document.getElementById('enviarCorreos').disabled = alumnos.length === 0;
-    });
-});
-
-    document.getElementById('enviarCorreos').addEventListener('click', function () {
-        const cursoId = document.getElementById('curso').value;
-        const fecha = document.getElementById('fecha').value;
-        const coordinador = document.getElementById('coordinadora').value;
-
-        // Obtener los IDs de los alumnos
-        const alumnos = Array.from(document.querySelectorAll('#alumnosTableBody tr')).map(row => row.cells[0].textContent);
-
-        // Solicitud AJAX para enviar los certificados
-        fetch('/certificados/enviar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            },
-            body: JSON.stringify({ curso_id: cursoId, fecha, coordinador, alumnos }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
         });
-    });
-</script>
+
+        // Botón para limpiar la lista
+        document.getElementById('limpiarLista').addEventListener('click', function () {
+            const tbody = document.getElementById('alumnosTableBody');
+            tbody.innerHTML = ''; // Limpia la tabla
+            document.getElementById('enviarCorreos').disabled = true; // Deshabilita el botón de enviar correos
+        });
+
+        // Botón para enviar correos
+        document.getElementById('enviarCorreos').addEventListener('click', function () {
+            const cursoId = document.getElementById('curso').value;
+            const fecha = document.getElementById('fecha').value;
+            const coordinador = document.getElementById('coordinadora').value;
+
+            // Obtener los IDs de los alumnos
+            const alumnos = Array.from(document.querySelectorAll('#alumnosTableBody tr')).map(row => row.cells[0].textContent);
+
+            // Solicitud AJAX para enviar los certificados
+            fetch('/certificados/enviar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({ curso_id: cursoId, fecha, coordinador, alumnos }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        });
+    </script>
 </body>
 </html>

@@ -2,9 +2,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use PDF;
 use App\Models\Curso;
 use App\Models\Alumno;
+use App\Models\CertificadoMail;
 
 class CertificadoController extends Controller
 {
@@ -13,6 +15,35 @@ class CertificadoController extends Controller
         $cursos = Curso::all(); // Obtén todos los cursos
         // Mostrar el formulario para generar certificados
         return view('certificados.index', compact('cursos'));
+    }
+    public function enviarCertificado(Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'nombre' => 'required|string',
+            'curso' => 'required|string',
+            'modalidad' => 'required|string',
+            'fecha' => 'required|date',
+            'profesor' => 'required|string',
+            'coordinadora' => 'required|string',
+            'email' => 'required|email',
+        ]);
+
+        // Datos para el certificado
+        $data = $request->all();
+
+        // Generar el PDF utilizando la misma vista que el botón de "Visualizar"
+        $pdf = PDF::loadView('certificados.plantilla', $data)
+            ->setPaper('a4', 'landscape');
+            
+
+        // Enviar el correo
+        try {
+            Mail::to($data['email'])->send(new CertificadoMail($pdf));
+            return response()->json(['message' => 'Certificado enviado con éxito']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al enviar el certificado: ' . $e->getMessage()], 500);
+        }
     }
 
     public function visualizar(Request $request)

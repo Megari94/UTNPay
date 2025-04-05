@@ -22,37 +22,48 @@
         <div class="flex-grow-1 custom-padding p-4">
             <h1>Gestión de Certificados</h1>
 
-            <!-- Formulario para generar un certificado -->
-            <form action="{{ route('certificados.visualizar') }}" method="POST" target="_blank" class="row g-3">
-                @csrf
-                <div class="col-md-4">
-                    <label for="nombre" class="form-label">Nombre del Alumno</label>
-                    <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="curso" class="form-label">Curso</label>
-                    <input type="text" class="form-control" id="curso" name="curso" placeholder="Ej: Programación Web" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="modalidad" class="form-label">Modalidad</label>
-                    <input type="text" class="form-control" id="modalidad" name="modalidad" placeholder="Ej: Virtual" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="fecha" class="form-label">Fecha</label>
-                    <input type="date" class="form-control" id="fecha" name="fecha" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="profesor" class="form-label">Profesor</label>
-                    <input type="text" class="form-control" id="profesor" name="profesor" placeholder="Ej: Blas Pascal" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="coordinadora" class="form-label">Coordinador</label>
-                    <input type="text" class="form-control" id="coordinadora" name="coordinadora" placeholder="Ej: María Antonieta" required>
-                </div>
-                <div class="col-12">
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-eye"></i> Visualizar PDF</button>
-                </div>
-            </form>
+        <!-- Formulario para generar un certificado -->
+        <form class="row g-3">
+            @csrf
+            <div class="col-md-4">
+                <label for="nombre" class="form-label">Nombre del Alumno</label>
+                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+            </div>
+            <div class="col-md-4">
+                <label for="curso" class="form-label">Curso</label>
+                <input type="text" class="form-control" id="curso" name="curso" placeholder="Ej: Programación Web" required>
+            </div>
+            <div class="col-md-4">
+                <label for="modalidad" class="form-label">Modalidad</label>
+                <input type="text" class="form-control" id="modalidad" name="modalidad" placeholder="Ej: Virtual" required>
+            </div>
+            <div class="col-md-4">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" class="form-control" id="fecha" name="fecha" required>
+            </div>
+            <div class="col-md-4">
+                <label for="profesor" class="form-label">Profesor</label>
+                <input type="text" class="form-control" id="profesor" name="profesor" placeholder="Ej: Blas Pascal" required>
+            </div>
+            <div class="col-md-4">
+                <label for="coordinadora" class="form-label">Coordinador</label>
+                <input type="text" class="form-control" id="coordinadora" name="coordinadora" placeholder="Ej: María Antonieta" required>
+            </div>
+            <div class="col-md-4">
+                <label for="email" class="form-label">Email del Alumno</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Ej: alumno@example.com" required>
+            </div>
+            <div class="col-12">
+                <!-- Botón para visualizar el PDF -->
+                <button type="submit" formaction="{{ route('certificados.visualizar') }}" formmethod="POST" target="_blank" class="btn btn-primary">
+                    <i class="bi bi-eye"></i> Visualizar PDF
+                </button>
+                <!-- Botón para enviar el certificado por correo -->
+                <button type="button" id="enviarCertificado" class="btn btn-success">
+                    <i class="bi bi-envelope"></i> Enviar por correo
+                </button>
+            </div>
+        </form>
 
             <div class="col-md-4">
                 <label for="curso_id" class="form-label">Curso</label>
@@ -93,6 +104,38 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Botón para enviar el certificado por correo
+        document.getElementById('enviarCertificado').addEventListener('click', function () {
+            const nombre = document.getElementById('nombre').value;
+            const curso = document.getElementById('curso').value;
+            const modalidad = document.getElementById('modalidad').value;
+            const fecha = document.getElementById('fecha').value;
+            const profesor = document.getElementById('profesor').value;
+            const coordinadora = document.getElementById('coordinadora').value;
+            const email = document.getElementById('email').value;
+
+            if (!nombre || !curso || !modalidad || !fecha || !profesor || !coordinadora || !email) {
+                alert('Por favor, complete todos los campos antes de enviar.');
+                return;
+            }
+
+            fetch('{{ route("certificados.enviar") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: JSON.stringify({ nombre, curso, modalidad, fecha, profesor, coordinadora, email }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error('Error enviando el certificado:', error);
+                alert('Ocurrió un error al enviar el certificado.');
+            });
+        });
         // Botón para buscar alumnos
         document.getElementById('buscarAlumnos').addEventListener('click', function () {
             const cursoId = document.getElementById('curso_id').value;

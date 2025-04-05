@@ -58,4 +58,6 @@ Route::get('/alumnos-completaron-curso', [CursoController::class, 'alumnosComple
 Route::get('/certificados', [CertificadoController::class, 'index'])->name('certificados.index');
 Route::post('/certificados/alumnos', [CertificadoController::class, 'obtenerAlumnos'])->name('certificados.alumnos');
 Route::post('/certificados/enviar', [CertificadoController::class, 'enviarCertificados'])->name('certificados.enviar');
+Route::post('/certificados/enviar', [CertificadoController::class, 'enviarPorCorreo'])->name('certificados.enviar');
+Route::post('/certificados/enviar', [CertificadoController::class, 'enviarCertificado'])->name('certificados.enviar');
 

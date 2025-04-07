@@ -166,15 +166,22 @@
                 tbody.innerHTML = ''; // Limpia la tabla
 
                 // Verificar si la respuesta tiene la estructura esperada
-                if (!data || !Array.isArray(data.alumnos)) {
+                if (!data || (!Array.isArray(data.alumnos) && typeof data.alumnos !== 'object')) {
                     console.warn("No hay alumnos en condiciones:", data.message || "Formato inesperado");
+
                     tbody.innerHTML = `<tr><td colspan="5">${data.message || "No hay alumnos disponibles"}</td></tr>`;
                     document.getElementById('enviarCorreos').disabled = true;
                     return;
                 }
 
+                // Convertir un solo objeto en un array si es necesario
+                const alumnos = Array.isArray(data.alumnos[0]) ? data.alumnos[0] : data.alumnos;
+
+
+
                 // Si hay alumnos, cargarlos en la tabla
-                data.alumnos.forEach((alumno, index) => {
+                alumnos.forEach((alumno, index) => {
+                    console.log('Alumno:', alumno); // <--- Agregado para ver los datos exactos
                     const row = `
                         <tr>
                             <td>${index + 1}</td>

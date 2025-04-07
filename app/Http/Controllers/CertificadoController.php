@@ -107,10 +107,10 @@ class CertificadoController extends Controller
     
         // Debug: Verifica si se encontraron alumnos
         if ($alumnos->isEmpty()) {
-            return response()->json(['message' => 'No hay alumnos en condiciones'], 200);
+            return response()->json([]); // No se encontraron alumnos
         }
     
-        return response()->json($alumnos);
+        return response()->json(['alumnos' => [$alumnos]]); // Retorna los alumnos encontrados
     }
     public function enviarCertificados(Request $request)
     {

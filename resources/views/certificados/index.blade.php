@@ -46,8 +46,9 @@
                 <input type="text" class="form-control" id="profesor" name="profesor" placeholder="Ej: Blas Pascal" required>
             </div>
             <div class="col-md-4">
-                <label for="coordinadora" class="form-label">Coordinador</label>
-                <input type="text" class="form-control" id="coordinadora" name="coordinadora" placeholder="Ej: María Antonieta" required>
+                <!--label for="coordinadora" class="form-label">Director Académico</label-->
+                <input type="hidden" name="coordinadora" value="Ing. Mariano López">
+
             </div>
             <div class="col-md-4">
                 <label for="email" class="form-label">Email del Alumno</label>
@@ -158,35 +159,41 @@
                 console.log('Response status:', response.status); // Debug: Verifica el estado de la respuesta
                 return response.json();
             })
-            .then(alumnos => {
-                console.log('Response from server:', alumnos); // Debug: Verifica la respuesta del servidor
+            .then(data => {
+                console.log('Response from server:', data); // Debug: Verifica la respuesta del servidor
 
                 const tbody = document.getElementById('alumnosTableBody');
                 tbody.innerHTML = ''; // Limpia la tabla
 
-                if (alumnos.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5">No hay alumnos en condiciones de recibir certificados</td></tr>';
-                } else {
-                    alumnos.forEach((alumno, index) => {
-                        const row = `
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${alumno.nombre}</td>
-                                <td>${alumno.apellido}</td>
-                                <td>${alumno.dni}</td>
-                                <td>${alumno.correo}</td>
-                            </tr>
-                        `;
-                        tbody.innerHTML += row;
-                    });
+                // Verificar si la respuesta tiene la estructura esperada
+                if (!data || !Array.isArray(data.alumnos)) {
+                    console.warn("No hay alumnos en condiciones:", data.message || "Formato inesperado");
+                    tbody.innerHTML = `<tr><td colspan="5">${data.message || "No hay alumnos disponibles"}</td></tr>`;
+                    document.getElementById('enviarCorreos').disabled = true;
+                    return;
                 }
 
-                document.getElementById('enviarCorreos').disabled = alumnos.length === 0;
+                // Si hay alumnos, cargarlos en la tabla
+                data.alumnos.forEach((alumno, index) => {
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${alumno.nombre}</td>
+                            <td>${alumno.apellido}</td>
+                            <td>${alumno.dni}</td>
+                            <td>${alumno.correo}</td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+
+                document.getElementById('enviarCorreos').disabled = data.alumnos.length === 0;
             })
             .catch(error => {
                 console.error('Error fetching alumnos:', error); // Debug: Muestra errores en la consola
             });
         });
+
 
         // Botón para limpiar la lista
         document.getElementById('limpiarLista').addEventListener('click', function () {

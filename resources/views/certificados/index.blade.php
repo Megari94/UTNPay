@@ -89,6 +89,7 @@
                             <th>Apellido</th>
                             <th>DNI</th>
                             <th>Correo</th>
+                            <th>Visualizar</th>
                         </tr>
                     </thead>
                     <tbody id="alumnosTableBody">

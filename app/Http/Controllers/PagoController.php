@@ -44,35 +44,37 @@ class PagoController extends Controller
     $mesActual = Carbon::now()->month;
 
     // Obtener los registros de alumnoxcurso
-    $alumnosCursos = DB::table('alumnoxcurso')
+        $alumnosCursos = DB::table('alumnoxcurso')
         ->join('cursos', 'alumnoxcurso.curso_id', '=', 'cursos.id')
         ->select(
             'alumnoxcurso.id as alumnoxcurso_id',
             'alumnoxcurso.pagos_realizados',
-            'cursos.mes_inicio',
+            'cursos.fecha_inicio',
             'cursos.cant_meses'
         )
         ->get();
 
     foreach ($alumnosCursos as $alumnoCurso) {
-        // Calcular la cantidad de meses que deberían haberse pagado
-        $mesesEsperados = $mesActual - $alumnoCurso->mes_inicio + 1;
+        $fechaInicio = Carbon::parse($alumnoCurso->fecha_inicio);
+        $mesesEsperados = $fechaInicio->diffInMonths(now()) + 1;
 
-        // Verificar si el alumno cumple las condiciones
         if ($mesesEsperados > 0 && $mesesEsperados <= $alumnoCurso->cant_meses) {
             if ($alumnoCurso->pagos_realizados >= $mesesEsperados) {
-                // Actualizar el estado a "al día"
                 DB::table('alumnoxcurso')
                     ->where('id', $alumnoCurso->alumnoxcurso_id)
                     ->update(['estado' => 'al dia']);
+            } else {
+                DB::table('alumnoxcurso')
+                    ->where('id', $alumnoCurso->alumnoxcurso_id)
+                    ->update(['estado' => 'vencido']);
             }
         } else {
-            // Si no cumple las condiciones, actualizar a "vencido"
             DB::table('alumnoxcurso')
                 ->where('id', $alumnoCurso->alumnoxcurso_id)
                 ->update(['estado' => 'vencido']);
         }
     }
+
 
     return response()->json(['message' => 'Estados actualizados correctamente.']);
 }

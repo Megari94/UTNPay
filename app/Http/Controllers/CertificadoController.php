@@ -109,8 +109,11 @@ class CertificadoController extends Controller
         if ($alumnos->isEmpty()) {
             return response()->json([]); // No se encontraron alumnos
         }
+
+        // Log para depuración
+        Log::info('Alumnos encontrados:', ['curso_id' => $cursoId, 'alumnos' => $alumnos]);
     
-        return response()->json(['alumnos' => [$alumnos]]); // Retorna los alumnos encontrados
+        return response()->json(['alumnos' => $alumnos]); // Retorna los alumnos encontrados
     }
     public function enviarCertificados(Request $request)
     {

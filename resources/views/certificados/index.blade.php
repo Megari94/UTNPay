@@ -104,7 +104,9 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script 
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    </script>
     <script>
         // Botón para enviar el certificado por correo
         document.getElementById('enviarCertificado').addEventListener('click', function () {
@@ -201,19 +203,39 @@
                 });
                 // Agrega un evento para los botones "Visualizar"
                 document.querySelectorAll('.btn-visualizar').forEach(button => {
-                    button.addEventListener('click', function () {
-                        const alumnoId = this.getAttribute('data-id');
-                        console.log('Visualizar certificado para alumno ID:', alumnoId); // Debug
+                button.addEventListener('click', function () {
+                    const alumnoId = this.getAttribute('data-id');
 
-                        // Redirige a la ruta para visualizar el certificado
-                        window.open(`/certificados/visualizar/${alumnoId}`, '_blank');
+                    // Crea el formulario dinámico
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = '{{ url("certificados/visualizar") }}/' + alumnoId;
+                    form.target = '_blank';
 
-                document.getElementById('enviarCorreos').disabled = data.alumnos.length === 0;
-            })
-            .catch(error => {
-                console.error('Error fetching alumnos:', error); // Debug: Muestra errores en la consola
+                    // CSRF Token
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    form.appendChild(csrfInput);
+
+                    // ID del alumno
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'alumno_id';
+                    idInput.value = alumnoId;
+                    form.appendChild(idInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                });
             });
-        });
+
+                // Habilitar el botón de enviar correos
+                document.getElementById('enviarCorreos').disabled = false;
+            })
+
 
 
         // Botón para limpiar la lista
@@ -222,6 +244,7 @@
             tbody.innerHTML = ''; // Limpia la tabla
             document.getElementById('enviarCorreos').disabled = true; // Deshabilita el botón de enviar correos
         });
+    });
 
         // Botón para enviar correos
         document.getElementById('enviarCorreos').addEventListener('click', function () {

@@ -68,6 +68,36 @@ class CertificadoController extends Controller
         return $pdf->stream('certificado.pdf');
     }
 
+    public function visualizarConId($id)
+    {
+        // Busca el alumno por ID
+        $alumno = Alumno::findOrFail($id);
+    
+        // Verifica que el alumno esté asociado a un curso
+        $curso = $alumno->curso;
+        if (!$curso) {
+            return redirect()->back()->with('error', 'El alumno no está asociado a ningún curso.');
+        }
+    
+        // Datos para el certificado
+        $data = [
+            'nombre' => $alumno->nombre,
+            'apellido' => $alumno->apellido,
+            'dni' => $alumno->dni,
+            'curso' => $curso->nombre,
+            'modalidad' => $curso->modalidad ?? 'Presencial',
+            'fecha' => now()->format('d/m/Y'), // Fecha actual
+            'profesor' => $curso->profesor ?? 'Ing. Blas Pascal', // Profesor del curso o valor por defecto
+            'coordinadora' => 'Ing. Mariano López', // Coordinador fijo
+        ];
+    
+        // Generar el PDF
+        $pdf = PDF::loadView('certificados.plantilla', $data)->setPaper('a4', 'landscape');
+    
+        // Mostrar el PDF en el navegador
+        return $pdf->stream('certificado.pdf');
+    }
+
     public function descargar(Request $request)
     {
         // Validar los datos del formulario

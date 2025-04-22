@@ -42,8 +42,10 @@
                 <input type="date" class="form-control" id="fecha" name="fecha" required>
             </div>
             <div class="col-md-4">
-                <label for="profesor" class="form-label">Profesor</label>
-                <input type="text" class="form-control" id="profesor" name="profesor" placeholder="Ej: Blas Pascal" required>
+                <!-- <label for="profesor" class="form-label">Profesor</label> -->
+                <!-- <input type="text" class="form-control" id="profesor" name="profesor" placeholder="Ej: Blas Pascal" required> -->
+                <input type="hidden" name="profesor" value="Ing. Blas Pascal">
+
             </div>
             <div class="col-md-4">
                 <!--label for="coordinadora" class="form-label">Director Académico</label-->
@@ -193,9 +195,9 @@
                             <td>${alumno.dni}</td>
                             <td>${alumno.correo}</td>
                             <td>
-                                <button class="btn btn-primary btn-visualizar" data-id="${alumno.id}">
+                                <a href="#" data-id="${alumno.id}" class="btn btn-primary btn-visualizar">
                                     <i class="bi bi-eye"></i> Visualizar
-                                </button>
+                                </a>
                             </td>
                         </tr>
                     `;

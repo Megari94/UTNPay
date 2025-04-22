@@ -7,6 +7,7 @@ use PDF;
 use App\Models\Curso;
 use App\Models\Alumno;
 use App\Models\CertificadoMail;
+use Illuminate\Support\Facades\Log;
 
 class CertificadoController extends Controller
 {
@@ -88,6 +89,7 @@ class CertificadoController extends Controller
         // Descargar el PDF
         return $pdf->download('certificado.pdf');
     }
+    
     public function obtenerAlumnos(Request $request)
     {
         $cursoId = $request->curso_id;
@@ -97,25 +99,27 @@ class CertificadoController extends Controller
             return response()->json(['error' => 'Curso ID no recibido'], 400);
         }
     
-        // Filtrar alumnos que tienen el estado "al día", están activos y cuyos pagos_realizados coinciden con cant_meses
+        // Filtrar alumnos que tienen el estado "al día", están activos y cuyos pagos_realizados >= cant_meses
         $alumnos = Alumno::whereHas('cursos', function ($query) use ($cursoId) {
             $query->where('curso_id', $cursoId)
                   ->where('estado', 'al día') // Verifica que el estado sea "al día"
                   ->where('activo', true) // Verifica que el alumno esté activo en el curso
-                  ->whereColumn('alumnoxcurso.pagos_realizados', '=', 'cursos.cant_meses'); // Verifica que pagos_realizados sea igual a cant_meses
+                  ->whereColumn('alumnoxcurso.pagos_realizados', '>=', 'cursos.cant_meses'); // Verifica que pagos_realizados >= cant_meses
         })->get();
+    
+        Log::info('Alumnos encontrados:', ['alumnos' => $alumnos]);
     
         // Debug: Verifica si se encontraron alumnos
         if ($alumnos->isEmpty()) {
             return response()->json([]); // No se encontraron alumnos
         }
-
+    
         // Log para depuración
         Log::info('Alumnos encontrados:', ['curso_id' => $cursoId, 'alumnos' => $alumnos]);
     
         return response()->json(['alumnos' => $alumnos]); // Retorna los alumnos encontrados
-    }
-    public function enviarCertificados(Request $request)
+    }   
+     public function enviarCertificados(Request $request)
     {
         $alumnos = Alumno::whereIn('id', $request->alumnos)->get();
         $curso = Curso::find($request->curso_id);

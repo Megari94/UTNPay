@@ -190,10 +190,23 @@
                             <td>${alumno.apellido}</td>
                             <td>${alumno.dni}</td>
                             <td>${alumno.correo}</td>
+                            <td>
+                                <button class="btn btn-primary btn-visualizar" data-id="${alumno.id}">
+                                    <i class="bi bi-eye"></i> Visualizar
+                                </button>
+                            </td>
                         </tr>
                     `;
                     tbody.innerHTML += row;
                 });
+                // Agrega un evento para los botones "Visualizar"
+                document.querySelectorAll('.btn-visualizar').forEach(button => {
+                    button.addEventListener('click', function () {
+                        const alumnoId = this.getAttribute('data-id');
+                        console.log('Visualizar certificado para alumno ID:', alumnoId); // Debug
+
+                        // Redirige a la ruta para visualizar el certificado
+                        window.open(`/certificados/visualizar/${alumnoId}`, '_blank');
 
                 document.getElementById('enviarCorreos').disabled = data.alumnos.length === 0;
             })

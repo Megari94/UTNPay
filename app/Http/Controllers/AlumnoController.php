@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Alumno;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\AlumnosImport;
+use Illuminate\Support\Facades\Log;
+
 
 class AlumnoController extends Controller
 {

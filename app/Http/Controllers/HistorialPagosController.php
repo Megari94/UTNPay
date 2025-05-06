@@ -8,6 +8,8 @@ use App\Models\Alumno;
 use App\Models\Curso;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
 
 class HistorialPagosController extends Controller
 {

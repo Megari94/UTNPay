@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Alumno;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
 
 class AlertaController extends Controller
 {

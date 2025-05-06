@@ -210,8 +210,8 @@
 
                     // Crea el formulario dinámico
                     const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '{{ url("certificados/visualizar") }}/' + alumnoId;
+                    form.method = 'GET';
+                    form.action = '{{ route("certificados.visualizarConId", ":id") }}'.replace(':id', alumnoId);
                     form.target = '_blank';
 
                     // CSRF Token
@@ -250,27 +250,42 @@
 
         // Botón para enviar correos
         document.getElementById('enviarCorreos').addEventListener('click', function () {
-            const cursoId = document.getElementById('curso').value;
+            const cursoId = document.getElementById('curso_id').value;
             const fecha = document.getElementById('fecha').value;
-            const coordinador = document.getElementById('coordinadora').value;
-
-            // Obtener los IDs de los alumnos
             const alumnos = Array.from(document.querySelectorAll('#alumnosTableBody tr')).map(row => row.cells[0].textContent);
 
-            // Solicitud AJAX para enviar los certificados
+            console.log("Curso ID:", cursoId);
+            console.log("Fecha:", fecha);
+            console.log("Alumnos:", alumnos);
+
             fetch('/certificados/enviar', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 },
-                body: JSON.stringify({ curso_id: cursoId, fecha, coordinador, alumnos }),
+                body: JSON.stringify({ curso_id: cursoId, fecha, alumnos }),
             })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
+            .then(response => {
+                console.log("Response status:", response.status);
+                return response.text(); // Leemos como texto primero para ver si viene HTML
+            })
+            .then(text => {
+                try {
+                    const data = JSON.parse(text); // Intentamos parsear como JSON
+                    console.log("Response JSON:", data);
+                    alert(data.message);
+                } catch (error) {
+                    console.error("Respuesta no es JSON válido:", text); // Aquí ves si es un HTML de error
+                    alert("Error inesperado. Ver consola para más detalles.");
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                alert("Falló la solicitud. Ver consola para más detalles.");
             });
         });
+
     </script>
 </body>
 </html>

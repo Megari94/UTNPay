@@ -61,10 +61,10 @@ Route::get('/alumnos-completaron-curso', [CursoController::class, 'alumnosComple
 
 Route::get('/certificados', [CertificadoController::class, 'index'])->name('certificados.index');
 Route::post('/certificados/alumnos', [CertificadoController::class, 'obtenerAlumnos'])->name('certificados.alumnos');
+
 Route::post('/certificados/enviar', [CertificadoController::class, 'enviarCertificados'])->name('certificados.enviar');
-Route::post('/certificados/enviar', [CertificadoController::class, 'enviarPorCorreo'])->name('certificados.enviar');
-Route::post('/certificados/enviar', [CertificadoController::class, 'enviarCertificado'])->name('certificados.enviar');
-//Route::get('/certificados/visualizar/{id}', [CertificadoController::class, 'visualizar'])->name('certificados.visualizar');
+Route::post('/certificados/enviar-individual', [CertificadoController::class, 'enviarCertificado'])->name('certificados.enviarIndividual');
+
 Route::get('/certificados/visualizar/{id}', [CertificadoController::class, 'visualizarConId'])->name('certificados.visualizarConId');
 Route::post('/certificados/visualizar', [CertificadoController::class, 'visualizar'])->name('certificados.visualizar');
-//Route::post('/certificados/visualizar', [CertificadoController::class, 'visualizar'])->name('certificados.visualizar');
+

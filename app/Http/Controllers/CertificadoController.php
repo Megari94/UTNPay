@@ -22,6 +22,8 @@ class CertificadoController extends Controller
         // Validar los datos del formulario
         $request->validate([
             'nombre' => 'required|string',
+            'apellido' => 'required|string',
+            'dni' => 'required|string',
             'curso' => 'required|string',
             'modalidad' => 'required|string',
             'fecha' => 'required|date',
@@ -105,6 +107,8 @@ class CertificadoController extends Controller
         // Validar los datos del formulario
         $request->validate([
             'nombre' => 'required|string',
+            'apellido' => 'required|string',
+            'dni' => 'required|string',
             'curso' => 'required|string',
             'modalidad' => 'required|string',
             'fecha' => 'required|date',
@@ -162,6 +166,8 @@ class CertificadoController extends Controller
             // Generar el PDF del certificado
             $data = [
                 'nombre' => $alumno->nombre,
+                'apellido' => $alumno->apellido,
+                'dni' => $alumno->dni,
                 'curso' => $curso->nombre,
                 'modalidad' => $curso->modalidad,
                 'fecha' => $fecha,

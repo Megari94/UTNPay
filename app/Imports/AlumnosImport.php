@@ -4,18 +4,25 @@ namespace App\Imports;
 
 use App\Models\Alumno;
 use Maatwebsite\Excel\Concerns\ToModel;
+use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class AlumnosImport implements ToModel
+
+class AlumnosImport implements ToModel, WithHeadingRow
 {
     public function model(array $row)
     {
+        //dd($row); // Esto te mostrará qué claves están llegando
+        // Verificar si ya existe por DNI
+        if (Alumno::where('dni', $row['dni'])->exists()) {
+            return null; // Ignora este registro
+        }
+
         return new Alumno([
-            'dni' => $row[0],
-            'apellido' => $row[1],
-            'nombre' => $row[2],
-            'telefono' => $row[3],
-            'curso' => $row[4],
-            'correo' => $row[5]
+            'nombre'   => $row['nombre'],
+            'apellido' => $row['apellido'],
+            'dni'      => $row['dni'],
+            'telefono' => $row['telefono'],
+            'correo'   => $row['correo'],
         ]);
     }
 }

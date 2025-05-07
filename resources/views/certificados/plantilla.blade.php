@@ -65,7 +65,7 @@
     <div class="fondo"></div>
 
     <div class="contenido">
-        <p>Se certifica que <strong>{{ $nombre }}</strong> ha completado el curso <strong>{{ $curso }}</strong> en la modalidad <strong>{{ $modalidad }}</strong>, 
+        <p>Se certifica que <strong>{{ $nombre }} {{ $apellido }} {{ $dni }}</strong> ha completado el curso <strong>{{ $curso }}</strong> en la modalidad <strong>{{ $modalidad }}</strong>, 
         finalizado en la fecha <strong>{{ $fecha }}</strong>.</p>
     </div>
     

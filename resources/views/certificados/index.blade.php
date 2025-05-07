@@ -109,238 +109,135 @@
   <!-- Bootstrap JS bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // Envío individual
-    document.getElementById('enviarCertificado').addEventListener('click', () => {
-      const nombre       = document.getElementById('nombre').value;
-      const curso        = document.getElementById('curso').value;
-      const modalidad    = document.getElementById('modalidad').value;
-      const fecha        = document.getElementById('fecha').value;
-      const profesor     = document.getElementById('profesor').value;
-      const coordinadora = document.getElementById('coordinadora').value;
-      const email        = document.getElementById('email').value;
+document.addEventListener("DOMContentLoaded", function () {
 
-      if (!nombre || !curso || !modalidad || !fecha || !profesor || !coordinadora || !email) {
-        return alert('Por favor, complete todos los campos.');
+  // Envío individual
+  document.getElementById('enviarCertificado').addEventListener('click', () => {
+    const nombre       = document.getElementById('nombre').value;
+    const curso        = document.getElementById('curso').value;
+    const modalidad    = document.getElementById('modalidad').value;
+    const fecha        = document.getElementById('fecha').value;
+    const profesor     = document.getElementById('profesor').value;
+    const coordinadora = document.getElementById('coordinadora').value;
+    const email        = document.getElementById('email').value;
+
+    if (!nombre || !curso || !modalidad || !fecha || !profesor || !coordinadora || !email) {
+      return alert('Por favor, complete todos los campos.');
+    }
+
+    fetch('{{ route("certificados.enviarIndividual") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ nombre, curso, modalidad, fecha, profesor, coordinadora, email })
+    })
+    .then(res => res.json())
+    .then(data => alert(data.message))
+    .catch(() => alert('Error al enviar el correo.'));
+  });
+
+  // Buscar alumnos por curso
+  document.getElementById('buscarAlumnos').addEventListener('click', () => {
+    const cursoId = document.getElementById('curso_id').value;
+    if (!cursoId) return alert('Seleccione un curso.');
+
+    fetch('{{ route("certificados.alumnos") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ curso_id: cursoId })
+    })
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById('alumnosTableBody');
+      tbody.innerHTML = '';
+
+      if (!data.alumnos || data.alumnos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6">No hay alumnos disponibles</td></tr>';
+        document.getElementById('enviarCorreos').disabled = true;
+        return;
       }
 
-      fetch('{{ route("certificados.enviar") }}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ nombre, curso, modalidad, fecha, profesor, coordinadora, email })
-      })
-      .then(res => res.json())
-      .then(data => alert(data.message))
-      .catch(() => alert('Error al enviar el correo.'));
-    });
+      data.alumnos.forEach((alumno, i) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${i + 1}</td>
+          <td>${alumno.nombre}</td>
+          <td>${alumno.apellido}</td>
+          <td>${alumno.dni}</td>
+          <td>${alumno.correo}</td>
+          <td>
+            <a href="#" data-id="${alumno.id}" class="btn btn-sm btn-primary btn-visualizar">
+              <i class="bi bi-eye"></i> Visualizar
+            </a>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
 
-    // Búsqueda de alumnos
-    document.getElementById('buscarAlumnos').addEventListener('click', () => {
-      const cursoId = document.getElementById('curso_id').value;
-      if (!cursoId) return alert('Seleccione un curso.');
+      // Evento de visualizar
+      document.querySelectorAll('.btn-visualizar').forEach(button => {
+        button.addEventListener('click', function () {
+          const alumnoId = this.dataset.id;
+          const form = document.createElement('form');
+          form.method = 'GET';
+          form.action = '{{ route("certificados.visualizarConId", ":id") }}'.replace(':id', alumnoId);
+          form.target = '_blank';
 
-      fetch('{{ route("certificados.alumnos") }}', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-        },
-        body: JSON.stringify({ curso_id: cursoId })
-      })
-      .then(res => res.json())
-      .then(data => {
-        const tbody = document.getElementById('alumnosTableBody');
-        tbody.innerHTML = '';
-        if (!data.alumnos || data.alumnos.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="6">No hay alumnos disponibles</td></tr>';
-          document.getElementById('enviarCorreos').disabled = true;
-          return;
-        }
-        data.alumnos.forEach((alumno, i) => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${alumno.nombre}</td>
-            <td>${alumno.apellido}</td>
-            <td>${alumno.dni}</td>
-            <td>${alumno.correo}</td>
-            <td>
-              <a href="#" data-id="${alumno.id}" class="btn btn-sm btn-primary btn-visualizar">
-                <i class="bi bi-eye"></i>
-              </a>
-            </td>
-          `;
-          tbody.appendChild(row);
-        });
-        document.getElementById('enviarCorreos').disabled = false;
-
-        // Añadir evento a cada “Visualizar” recién creado
-        document.querySelectorAll('.btn-visualizar').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const alumnoId = btn.dataset.id;
-            window.open(`/certificados/visualizar/${alumnoId}`, '_blank');
-          });
+          document.body.appendChild(form);
+          form.submit();
+          document.body.removeChild(form);
         });
       });
+
+      document.getElementById('enviarCorreos').disabled = false;
     });
+  });
 
-    // Limpiar lista
-    document.getElementById('limpiarLista').addEventListener('click', () => {
-      document.getElementById('alumnosTableBody').innerHTML = '';
-      document.getElementById('enviarCorreos').disabled = true;
+  // Limpiar lista
+  document.getElementById('limpiarLista').addEventListener('click', () => {
+    document.getElementById('alumnosTableBody').innerHTML = '';
+    document.getElementById('enviarCorreos').disabled = true;
+  });
+
+  // Envío MASIVO
+  document.getElementById('enviarCorreos').addEventListener('click', () => {
+    const cursoId     = document.getElementById('curso_id').value;
+    const fecha       = document.getElementById('fecha').value;
+    const coordinador = document.getElementById('coordinadora').value;
+
+    const alumnos = Array.from(
+      document.querySelectorAll('#alumnosTableBody .btn-visualizar')
+    ).map(btn => btn.dataset.id);
+
+    if (alumnos.length === 0) {
+      return alert("No hay alumnos seleccionados.");
+    }
+
+    fetch('{{ route("certificados.enviar") }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ curso_id: cursoId, fecha, coordinador, alumnos })
+    })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || "Correos enviados correctamente.");
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("Error al enviar correos.");
     });
+  });
 
-    // ————————————————
-    // Envío MASIVO CORRECTO
-    // ————————————————
-    document.getElementById('enviarCorreos').addEventListener('click', () => {
-        // 1) Leer el select correcto:
-        const cursoId     = document.getElementById('curso_id').value;
-        // 2) Leer la fecha si la necesitas:
-        const fecha       = document.getElementById('fecha').value;
-        // 3) Leer el coordinador del hidden:
-        const coordinador = document.getElementById('coordinadora').value;
+});
+</script>
 
-        // 4) Extraer los IDs desde los data-attributes de los botones “Visualizar”:
-        const alumnos = Array.from(
-            document.querySelectorAll('#alumnosTableBody .btn-visualizar')
-        ).map(btn => btn.dataset.id);
-
-<<<<<<< HEAD
-        // 5) Hacer POST a la ruta masiva
-        fetch('{{ route("certificados.enviarMultiple") }}', {
-            method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ curso_id: cursoId, fecha, coordinador, alumnos })
-        })
-        .then(res => res.json())
-        .then(data => alert(data.message))
-        .catch(err => {
-            console.error(err);
-            alert('Error al enviar los certificados.');
-        });
-    });
-
-  </script>
-=======
-                    tbody.innerHTML = `<tr><td colspan="5">${data.message || "No hay alumnos disponibles"}</td></tr>`;
-                    document.getElementById('enviarCorreos').disabled = true;
-                    return;
-                }
-
-                // Convertir un solo objeto en un array si es necesario
-                const alumnos = Array.isArray(data.alumnos[0]) ? data.alumnos[0] : data.alumnos;
-
-
-
-                // Si hay alumnos, cargarlos en la tabla
-                alumnos.forEach((alumno, index) => {
-                    console.log('Alumno:', alumno); // <--- Agregado para ver los datos exactos
-                    const row = `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td>${alumno.nombre}</td>
-                            <td>${alumno.apellido}</td>
-                            <td>${alumno.dni}</td>
-                            <td>${alumno.correo}</td>
-                            <td>
-                                <a href="#" data-id="${alumno.id}" class="btn btn-primary btn-visualizar">
-                                    <i class="bi bi-eye"></i> Visualizar
-                                </a>
-                            </td>
-                        </tr>
-                    `;
-                    tbody.innerHTML += row;
-                });
-                // Agrega un evento para los botones "Visualizar"
-                document.querySelectorAll('.btn-visualizar').forEach(button => {
-                button.addEventListener('click', function () {
-                    const alumnoId = this.getAttribute('data-id');
-
-                    // Crea el formulario dinámico
-                    const form = document.createElement('form');
-                    form.method = 'GET';
-                    form.action = '{{ route("certificados.visualizarConId", ":id") }}'.replace(':id', alumnoId);
-                    form.target = '_blank';
-
-                    // CSRF Token
-                    const csrfInput = document.createElement('input');
-                    csrfInput.type = 'hidden';
-                    csrfInput.name = '_token';
-                    csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    form.appendChild(csrfInput);
-
-                    // ID del alumno
-                    const idInput = document.createElement('input');
-                    idInput.type = 'hidden';
-                    idInput.name = 'alumno_id';
-                    idInput.value = alumnoId;
-                    form.appendChild(idInput);
-
-                    document.body.appendChild(form);
-                    form.submit();
-                    document.body.removeChild(form);
-                });
-            });
-
-                // Habilitar el botón de enviar correos
-                document.getElementById('enviarCorreos').disabled = false;
-            })
-
-
-
-        // Botón para limpiar la lista
-        document.getElementById('limpiarLista').addEventListener('click', function () {
-            const tbody = document.getElementById('alumnosTableBody');
-            tbody.innerHTML = ''; // Limpia la tabla
-            document.getElementById('enviarCorreos').disabled = true; // Deshabilita el botón de enviar correos
-        });
-    });
-
-        // Botón para enviar correos
-        document.getElementById('enviarCorreos').addEventListener('click', function () {
-            const cursoId = document.getElementById('curso_id').value;
-            const fecha = document.getElementById('fecha').value;
-            const alumnos = Array.from(document.querySelectorAll('#alumnosTableBody tr')).map(row => row.cells[0].textContent);
-
-            console.log("Curso ID:", cursoId);
-            console.log("Fecha:", fecha);
-            console.log("Alumnos:", alumnos);
-
-            fetch('/certificados/enviar', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                },
-                body: JSON.stringify({ curso_id: cursoId, fecha, alumnos }),
-            })
-            .then(response => {
-                console.log("Response status:", response.status);
-                return response.text(); // Leemos como texto primero para ver si viene HTML
-            })
-            .then(text => {
-                try {
-                    const data = JSON.parse(text); // Intentamos parsear como JSON
-                    console.log("Response JSON:", data);
-                    alert(data.message);
-                } catch (error) {
-                    console.error("Respuesta no es JSON válido:", text); // Aquí ves si es un HTML de error
-                    alert("Error inesperado. Ver consola para más detalles.");
-                }
-            })
-            .catch(error => {
-                console.error("Fetch error:", error);
-                alert("Falló la solicitud. Ver consola para más detalles.");
-            });
-        });
-
-    </script>
->>>>>>> 664eb3c2afc154b879e83afa9cc9b8fc23ff8b40
 </body>
 </html>

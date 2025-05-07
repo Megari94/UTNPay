@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Alumno;
 use App\Models\AlumnoXCurso;
+use Illuminate\Support\Facades\Log;
+
 
 class AlumnoXCursoController extends Controller
 {

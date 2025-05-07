@@ -208,6 +208,7 @@
             document.querySelectorAll('#alumnosTableBody .btn-visualizar')
         ).map(btn => btn.dataset.id);
 
+<<<<<<< HEAD
         // 5) Hacer POST a la ruta masiva
         fetch('{{ route("certificados.enviarMultiple") }}', {
             method: 'POST',
@@ -226,5 +227,120 @@
     });
 
   </script>
+=======
+                    tbody.innerHTML = `<tr><td colspan="5">${data.message || "No hay alumnos disponibles"}</td></tr>`;
+                    document.getElementById('enviarCorreos').disabled = true;
+                    return;
+                }
+
+                // Convertir un solo objeto en un array si es necesario
+                const alumnos = Array.isArray(data.alumnos[0]) ? data.alumnos[0] : data.alumnos;
+
+
+
+                // Si hay alumnos, cargarlos en la tabla
+                alumnos.forEach((alumno, index) => {
+                    console.log('Alumno:', alumno); // <--- Agregado para ver los datos exactos
+                    const row = `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${alumno.nombre}</td>
+                            <td>${alumno.apellido}</td>
+                            <td>${alumno.dni}</td>
+                            <td>${alumno.correo}</td>
+                            <td>
+                                <a href="#" data-id="${alumno.id}" class="btn btn-primary btn-visualizar">
+                                    <i class="bi bi-eye"></i> Visualizar
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+                // Agrega un evento para los botones "Visualizar"
+                document.querySelectorAll('.btn-visualizar').forEach(button => {
+                button.addEventListener('click', function () {
+                    const alumnoId = this.getAttribute('data-id');
+
+                    // Crea el formulario dinámico
+                    const form = document.createElement('form');
+                    form.method = 'GET';
+                    form.action = '{{ route("certificados.visualizarConId", ":id") }}'.replace(':id', alumnoId);
+                    form.target = '_blank';
+
+                    // CSRF Token
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = '_token';
+                    csrfInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    form.appendChild(csrfInput);
+
+                    // ID del alumno
+                    const idInput = document.createElement('input');
+                    idInput.type = 'hidden';
+                    idInput.name = 'alumno_id';
+                    idInput.value = alumnoId;
+                    form.appendChild(idInput);
+
+                    document.body.appendChild(form);
+                    form.submit();
+                    document.body.removeChild(form);
+                });
+            });
+
+                // Habilitar el botón de enviar correos
+                document.getElementById('enviarCorreos').disabled = false;
+            })
+
+
+
+        // Botón para limpiar la lista
+        document.getElementById('limpiarLista').addEventListener('click', function () {
+            const tbody = document.getElementById('alumnosTableBody');
+            tbody.innerHTML = ''; // Limpia la tabla
+            document.getElementById('enviarCorreos').disabled = true; // Deshabilita el botón de enviar correos
+        });
+    });
+
+        // Botón para enviar correos
+        document.getElementById('enviarCorreos').addEventListener('click', function () {
+            const cursoId = document.getElementById('curso_id').value;
+            const fecha = document.getElementById('fecha').value;
+            const alumnos = Array.from(document.querySelectorAll('#alumnosTableBody tr')).map(row => row.cells[0].textContent);
+
+            console.log("Curso ID:", cursoId);
+            console.log("Fecha:", fecha);
+            console.log("Alumnos:", alumnos);
+
+            fetch('/certificados/enviar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                body: JSON.stringify({ curso_id: cursoId, fecha, alumnos }),
+            })
+            .then(response => {
+                console.log("Response status:", response.status);
+                return response.text(); // Leemos como texto primero para ver si viene HTML
+            })
+            .then(text => {
+                try {
+                    const data = JSON.parse(text); // Intentamos parsear como JSON
+                    console.log("Response JSON:", data);
+                    alert(data.message);
+                } catch (error) {
+                    console.error("Respuesta no es JSON válido:", text); // Aquí ves si es un HTML de error
+                    alert("Error inesperado. Ver consola para más detalles.");
+                }
+            })
+            .catch(error => {
+                console.error("Fetch error:", error);
+                alert("Falló la solicitud. Ver consola para más detalles.");
+            });
+        });
+
+    </script>
+>>>>>>> 664eb3c2afc154b879e83afa9cc9b8fc23ff8b40
 </body>
 </html>

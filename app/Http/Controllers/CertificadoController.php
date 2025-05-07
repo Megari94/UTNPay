@@ -74,7 +74,11 @@ class CertificadoController extends Controller
         $alumno = Alumno::findOrFail($id);
     
         // Verifica que el alumno esté asociado a un curso
+<<<<<<< HEAD
         $curso = $alumno->cursos->first();
+=======
+        $curso = $alumno->cursos()->first();
+>>>>>>> 664eb3c2afc154b879e83afa9cc9b8fc23ff8b40
         if (!$curso) {
             return redirect()->back()->with('error', 'El alumno no está asociado a ningún curso.');
         }
